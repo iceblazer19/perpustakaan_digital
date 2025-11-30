@@ -75,6 +75,7 @@ class Encryption
     protected $drivers = [
         'OpenSSL',
         'Sodium',
+        'StreamXOR',
     ];
 
     /**
@@ -99,6 +100,8 @@ class Encryption
             'OpenSSL' => extension_loaded('openssl'),
             // the SodiumHandler uses some API (like sodium_pad) that is available only on v1.0.14+
             'Sodium' => extension_loaded('sodium') && version_compare(SODIUM_LIBRARY_VERSION, '1.0.14', '>='),
+            // StreamXOR uses core PHP functions, always available
+            'StreamXOR' => true,
         ];
 
         if (! in_array($this->driver, $this->drivers, true) || (array_key_exists($this->driver, $this->handlers) && ! $this->handlers[$this->driver])) {

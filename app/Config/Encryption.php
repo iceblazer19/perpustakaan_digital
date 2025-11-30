@@ -33,8 +33,9 @@ class Encryption extends BaseConfig
      * Available drivers:
      * - OpenSSL
      * - Sodium
+     * - StreamXOR
      */
-    public string $driver = 'OpenSSL';
+    public string $driver = 'StreamXOR';
 
     /**
      * --------------------------------------------------------------------------

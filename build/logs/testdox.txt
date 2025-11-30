@@ -1,0 +1,18 @@
+Health
+ [x] Is defined app path
+ [x] Base url has been set
+
+Stream XORHandler
+ [x] Encrypt decrypt
+ [x] Encrypt decrypt empty string
+ [x] Encrypt decrypt long data
+ [x] Encrypt decrypt binary data
+ [x] Encrypt produces unique output
+ [x] Decrypt with wrong key fails
+ [x] Decrypt tampered data fails
+ [x] Encrypt with empty key throws exception
+ [x] Decrypt with empty key throws exception
+ [x] Encrypt decrypt with base 64 encoding
+ [x] Encrypt decrypt with different digests
+ [x] Encrypt with key array
+
