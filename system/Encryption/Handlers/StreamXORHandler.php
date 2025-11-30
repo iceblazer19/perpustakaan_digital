@@ -34,9 +34,9 @@ class StreamXORHandler extends BaseHandler
     /**
      * List of supported HMAC algorithms
      *
-     * @var array [name => digest size]
+     * @var array<string, int> [name => digest size]
      */
-    protected array $digestSize = [
+    protected static array $digestSize = [
         'SHA224' => 28,
         'SHA256' => 32,
         'SHA384' => 48,
@@ -72,8 +72,8 @@ class StreamXORHandler extends BaseHandler
         // Generate a random nonce for this encryption
         $nonce = random_bytes(16);
 
-        // Derive encryption key using HKDF
-        $encryptKey = hash_hkdf($this->digest, $this->key, 0, 'encryption');
+        // Derive encryption key using HKDF with explicit key length
+        $encryptKey = hash_hkdf($this->digest, $this->key, self::$digestSize[$this->digest], 'encryption');
 
         // Generate keystream and XOR with data
         $ciphertext = $this->xorWithKeystream($data, $encryptKey, $nonce);
@@ -86,8 +86,8 @@ class StreamXORHandler extends BaseHandler
             $result = base64_encode($result);
         }
 
-        // Derive authentication key
-        $authKey = hash_hkdf($this->digest, $this->key, 0, 'authentication');
+        // Derive authentication key using HKDF with explicit key length
+        $authKey = hash_hkdf($this->digest, $this->key, self::$digestSize[$this->digest], 'authentication');
 
         // Calculate HMAC for authentication
         $hmac = hash_hmac($this->digest, $result, $authKey, $this->rawData);
@@ -109,13 +109,13 @@ class StreamXORHandler extends BaseHandler
             throw EncryptionException::forNeedsStarterKey();
         }
 
-        // Derive authentication key
-        $authKey = hash_hkdf($this->digest, $this->key, 0, 'authentication');
+        // Derive authentication key using HKDF with explicit key length
+        $authKey = hash_hkdf($this->digest, $this->key, self::$digestSize[$this->digest], 'authentication');
 
         // Calculate HMAC length
         $hmacLength = $this->rawData
-            ? $this->digestSize[$this->digest]
-            : $this->digestSize[$this->digest] * 2;
+            ? self::$digestSize[$this->digest]
+            : self::$digestSize[$this->digest] * 2;
 
         // Extract HMAC and encrypted data
         $hmacReceived = self::substr($data, 0, $hmacLength);
@@ -141,8 +141,8 @@ class StreamXORHandler extends BaseHandler
         $nonce = self::substr($encryptedData, 0, $nonceLength);
         $ciphertext = self::substr($encryptedData, $nonceLength);
 
-        // Derive encryption key using HKDF
-        $encryptKey = hash_hkdf($this->digest, $this->key, 0, 'encryption');
+        // Derive encryption key using HKDF with explicit key length
+        $encryptKey = hash_hkdf($this->digest, $this->key, self::$digestSize[$this->digest], 'encryption');
 
         // XOR ciphertext with keystream to get plaintext
         return $this->xorWithKeystream($ciphertext, $encryptKey, $nonce);
@@ -161,7 +161,7 @@ class StreamXORHandler extends BaseHandler
     {
         $dataLength = strlen($data);
         $result = '';
-        $blockSize = $this->digestSize[$this->digest];
+        $blockSize = self::$digestSize[$this->digest];
         $blockIndex = 0;
         $keystream = '';
 
